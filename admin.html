@@ -4,8 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex,nofollow">
-<title>Kim Anh – Quản trị</title>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,600..800&family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap">
+<title>Kim Anh Handmade – Quản trị</title>
 <style>
 :root{--bg:#FBEFB8;--paper:#FFF8D9;--brown:#5B3A24;--blue:#274B94;--red:#C42B1F;--ink:#1A1410;--line:#E2C95E;color-scheme:light}
 *{box-sizing:border-box}
@@ -40,54 +39,6 @@ input[type=checkbox]{width:auto}
 .toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 18px;border-radius:99px;opacity:0;transition:.25s;pointer-events:none}
 .toast.on{opacity:1}
 a{color:var(--blue)}
-
-/* ===== v3 admin: dễ nhìn, có sidebar trên laptop, thanh tab dưới đáy trên điện thoại ===== */
-:root{--sh:0 8px 24px rgba(91,58,36,.10);--e:cubic-bezier(.2,.8,.2,1)}
-body{background:radial-gradient(800px 480px at 100% -10%,#FFF6C2,transparent 60%),var(--bg);font-family:'Be Vietnam Pro',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
-h1,h2{font-family:'Fraunces',Georgia,serif;letter-spacing:-.01em}
-h2{font-size:28px}
-@keyframes pg{from{opacity:0;transform:translateY(14px)}}
-#login{animation:pg .6s var(--e)}
-#login .card{padding:28px;border-radius:22px;box-shadow:0 24px 60px rgba(91,58,36,.2)}
-#login h1{font-size:30px}
-.card{border-radius:16px;box-shadow:var(--sh);border:1px solid var(--line);transition:transform .3s var(--e),box-shadow .3s}
-.ord:hover,.prow:hover{transform:translateY(-2px);box-shadow:0 14px 30px rgba(91,58,36,.16)}
-#main>*{animation:pg .45s var(--e) backwards}
-button,.btn{transition:transform .15s,background .2s,color .2s,box-shadow .2s}
-button:active{transform:scale(.96)}
-button.red{box-shadow:0 6px 16px rgba(196,43,31,.3)}
-input:focus,select:focus,textarea:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 4px rgba(39,75,148,.15)}
-.stats .card{position:relative;overflow:hidden;font-weight:600}
-.stats .card b{font:700 32px 'Fraunces',serif}
-.stats .card::before{content:"";position:absolute;left:0;top:0;bottom:0;width:5px;background:var(--blue)}
-.stats .card:nth-child(1)::before{background:var(--red)}.stats .card:nth-child(3)::before{background:#2F7D4F}.stats .card:nth-child(4)::before{background:#E8A33C}
-.badge{padding:3px 12px}
-.badge.s-new{background:var(--red)}.badge.s-ok{background:var(--blue)}.badge.s-work{background:#8a6414}.badge.s-done{background:#2F7D4F}.badge.s-cancel{background:#666}
-.ord{border-left:6px solid var(--line)}
-.ord.s-new{border-left-color:var(--red)}.ord.s-ok{border-left-color:var(--blue)}.ord.s-work{border-left-color:#8a6414}.ord.s-done{border-left-color:#2F7D4F}.ord.s-cancel{border-left-color:#999;opacity:.8}
-[data-tab=dash]::before{content:"📊"}[data-tab=orders]::before{content:"🧾"}[data-tab=prods]::before{content:"👜"}
-.tabs button::before{margin-right:6px}
-header{box-shadow:0 4px 18px rgba(91,58,36,.08)}
-header h1{font-size:22px}
-.toast{box-shadow:0 12px 30px rgba(26,20,16,.3)}
-@media(min-width:900px){
- #app:not(.hide){display:grid;grid-template-columns:250px 1fr;align-items:start}
- #app header{position:sticky;top:0;height:100vh;border-bottom:0;border-right:1px solid var(--line)}
- #app header .wrap{flex-direction:column;align-items:stretch;flex-wrap:nowrap;gap:20px;padding:24px 18px;height:100%;max-width:none;margin:0}
- #app header h1{flex:none;font-size:24px}
- #app .tabs{flex-direction:column;flex:1}
- #app .tabs button{text-align:left;border-radius:14px;padding:12px 16px}
- #app #out{margin-top:auto}
- #main{max-width:1100px;margin:0 auto;padding:32px 40px}
-}
-@media(max-width:899px){
- .tabs{position:fixed;left:12px;right:12px;bottom:calc(10px + env(safe-area-inset-bottom));z-index:20;background:rgba(255,248,217,.96);border:1px solid var(--line);border-radius:22px;padding:6px;box-shadow:0 14px 40px rgba(91,58,36,.28);gap:2px}
- .tabs button{flex:1;border:0;border-radius:16px;padding:8px 4px;font-size:12px;display:flex;flex-direction:column;align-items:center}
- .tabs button::before{margin:0;font-size:20px}
- .tabs button.on{background:var(--brown);color:var(--paper)}
- #main{padding-bottom:110px}
- .toast{bottom:96px}
-}
 </style>
 </head>
 <body>
@@ -98,8 +49,8 @@ header h1{font-size:22px}
 <button class="red" type="submit">Đăng nhập</button></form></div></div>
 
 <div id="app" class="hide">
-<header><div class="wrap"><h1>Kim Anh – Quản trị</h1>
-<nav class="tabs" aria-label="Mục"><button data-tab="dash">Tổng quan</button><button data-tab="orders">Đơn hàng</button><button data-tab="prods">Sản phẩm</button></nav>
+<header><div class="wrap"><h1>Kim Anh Handmade – Quản trị</h1>
+<nav class="tabs" aria-label="Mục"><button data-tab="dash">Tổng quan</button><button data-tab="orders">Đơn hàng</button><button data-tab="prods">Sản phẩm</button><button data-tab="pay">Thanh toán</button><button data-tab="cus">Đặt làm</button><button data-tab="cfg">Cấu hình</button></nav>
 <button id="out">Đăng xuất</button></div></header>
 <main class="wrap" id="main"></main>
 </div>
@@ -108,8 +59,8 @@ header h1{font-size:22px}
 <script src="config.js"></script>
 <script>
 var STATUSES=['Mới','Đã xác nhận','Đang làm','Đã giao','Đã hủy'];
-var SL={'Mới':'new','Đã xác nhận':'ok','Đang làm':'work','Đã giao':'done','Đã hủy':'cancel'};
 var $=function(s){return document.querySelector(s)};
+var PSTAT=['Chưa thanh toán','Chờ xác nhận tiền cọc','Đã xác nhận tiền cọc','Chờ thanh toán phần còn lại','Đã thanh toán đủ'],CSTAT=['Mới','Đã báo giá','Đã xác nhận','Đang làm','Đã giao','Đã hủy'],pays=[],cus=[],cfg={},tks=[],GR={};
 var KEY='',tab='dash',orders=[],prods=[],filter='Tất cả',editing=null;
 function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
 function money(n){return n>0?n.toLocaleString('vi-VN')+' ₫':'Chờ báo giá'}
@@ -125,7 +76,7 @@ function imgUrl(i){return !i?'':/^http/.test(i)?i:/^[\w\-]+\.(jpe?g|png|webp)$/i
 function enter(k){KEY=k;return call('adminLogin').then(function(){
  try{sessionStorage.setItem('ka_k',k)}catch(e){}
  $('#login').classList.add('hide');$('#app').classList.remove('hide');return load()})}
-function load(){return Promise.all([call('adminListOrders'),call('adminListProducts')]).then(function(r){orders=r[0];prods=r[1];render()})}
+function load(){return Promise.all([call('adminListOrders'),call('adminListProducts'),call('adminListPay'),call('adminListCustom'),call('adminGetConfig'),call('adminListTickets'),call('adminListGroups')]).then(function(r){tks=r[5];GR=r[6]||{};orders=r[0];prods=r[1];pays=r[2];cus=r[3];cfg=r[4];render()})}
 $('#lf').addEventListener('submit',function(e){e.preventDefault();$('#le').textContent='';
  enter($('#k').value).catch(function(x){KEY='';$('#le').textContent=msg(x)})});
 $('#out').onclick=function(){KEY='';try{sessionStorage.removeItem('ka_k')}catch(e){}location.reload()};
@@ -134,7 +85,7 @@ try{var sk=sessionStorage.getItem('ka_k');if(sk)enter(sk).catch(function(){KEY='
 
 function render(){
  document.querySelectorAll('[data-tab]').forEach(function(b){b.classList.toggle('on',b.dataset.tab===tab)});
- $('#main').innerHTML=tab==='dash'?dash():tab==='orders'?ordersView():prodsView();
+ $('#main').innerHTML=tab==='dash'?dash():tab==='orders'?ordersView():tab==='pay'?payView():tab==='cus'?cusView():tab==='cfg'?cfgView():prodsView();
  bind()}
 function dash(){
  var c=function(s){return orders.filter(function(o){return o.status===s}).length};
@@ -154,7 +105,7 @@ function ordersView(){
  return '<h2>Đơn hàng</h2><label for="flt">Lọc theo trạng thái</label><select id="flt"><option>Tất cả</option>'+STATUSES.map(function(s){return '<option'+(s===filter?' selected':'')+'>'+s+'</option>'}).join('')+'</select><br><br>'+
  (list.length?list.map(function(o){
   var zl='https://zalo.me/'+esc(o.phone);
-  return '<div class="card ord s-'+(SL[o.status]||'ok')+'"><div class="top"><b>'+esc(o.code)+'</b><span class="muted">'+esc(o.time)+'</span><span class="badge s-'+(SL[o.status]||'ok')+'">'+esc(o.status)+'</span></div>'+
+  return '<div class="card ord"><div class="top"><b>'+esc(o.code)+'</b><span class="muted">'+esc(o.time)+'</span><span class="badge '+esc(o.status.split(' ')[0])+'">'+esc(o.status)+'</span></div>'+
   '<div>'+esc(o.name)+' · <a href="tel:'+esc(o.phone)+'">'+esc(o.phone)+'</a> · <a href="'+zl+'" target="_blank" rel="noopener">Zalo</a></div>'+
   '<div>'+esc(o.address)+'</div><div>'+o.items.map(esc).join('<br>')+'</div>'+(o.note?'<div class="muted">Ghi chú: '+esc(o.note)+'</div>':'')+
   '<div><b>'+money(o.total)+'</b></div>'+
@@ -167,10 +118,23 @@ function form(){var p=editing;
  return '<h2>'+(p.id?'Sửa sản phẩm':'Thêm sản phẩm')+'</h2><form class="card" id="pf"><label for="n">Tên</label><input id="n" value="'+esc(p.name)+'">'+
  '<div class="grid2"><div><label for="c">Nhóm</label><input id="c" value="'+esc(p.cat)+'" placeholder="Túi hoa nổi"></div><div><label for="co">Màu</label><input id="co" value="'+esc(p.color)+'"></div>'+
  '<div><label for="h">Mã màu (hex)</label><input id="h" value="'+esc(p.hex||'#5B3A24')+'"></div><div><label for="pr">Giá (₫, để 0 nếu báo giá riêng)</label><input id="pr" type="number" min="0" step="1000" value="'+(p.price||0)+'"></div>'+
- '<div><label for="s">Tồn kho (để trống nếu không giới hạn)</label><input id="s" type="number" min="0" value="'+esc(p.stock)+'"></div><div><label for="im">Ảnh (tên file trong images/, ID Drive hoặc link)</label><input id="im" value="'+esc(p.img)+'"></div></div>'+
- '<label for="no">Mô tả</label><textarea id="no" rows="3">'+esc(p.note)+'</textarea>'+
+ '<div><label for="s">Tồn kho (để trống nếu không giới hạn)</label><input id="s" type="number" min="0" value="'+esc(p.stock)+'"></div><div><label for="im">Ảnh (ID file Drive hoặc link)</label><input id="im" value="'+esc(p.img)+'"></div></div>'+
+ '<label for="gr">Nhóm biến thể (các màu cùng kiểu ghi cùng tên nhóm)</label><input id="gr" value="'+esc(GR[p.id]||'')+'" placeholder="Ví dụ: Túi hoa nổi"><label for="no">Mô tả</label><textarea id="no" rows="3">'+esc(p.note)+'</textarea>'+
  '<label><input type="checkbox" id="ac"'+(p.active?' checked':'')+'> Hiển thị trên web</label><br><button class="red" type="submit">Lưu sản phẩm</button> <button type="button" id="cx">Hủy</button></form>'}
-function bind(){
+function sel(attr,key,list,cur){return '<select '+attr+'="'+esc(key)+'">'+list.map(function(s){return '<option'+(s===cur?' selected':'')+'>'+s+'</option>'}).join('')+'</select>'}
+function tkView(){var w=tks.filter(function(t){return t.status==='Chờ xác nhận'});return '<h3>Ticket chờ đối chiếu ('+w.length+')</h3>'+(w.length?w.map(function(t){return '<div class="card ord"><div class="top"><b>'+esc(t.ticket)+'</b><span class="muted">'+esc(t.time)+'</span></div><div>Đơn '+esc(t.code)+' · cọc <b>'+money(t.amount)+'</b></div><p class="muted">Kiểm tra sao kê: nội dung CK = mã ticket, đúng số tiền.</p><button class="red" data-tk="'+esc(t.ticket)+'" data-ok="1">Đã nhận tiền – Xác nhận</button> <button data-tk="'+esc(t.ticket)+'" data-ok="0">Từ chối</button></div>'}).join(''):'<p class="muted">Không có ticket nào đang chờ.</p>')+'<h3>Giao dịch</h3>'}
+function payView(){return '<h2>Thanh toán &amp; đặt cọc</h2>'+tkView()+(pays.length?pays.map(function(p){return '<div class="card ord"><div class="top"><b>'+esc(p.code)+'</b><span class="muted">'+esc(p.time)+'</span><span class="badge">'+esc(p.method||'—')+'</span></div><div>Tổng '+money(p.total)+' · Cọc '+money(p.deposit)+'</div><label>Trạng thái thanh toán</label>'+sel('data-pay',p.code,PSTAT,p.status)+'<p class="muted">Chỉ xác nhận sau khi đã thấy tiền về tài khoản.</p></div>'}).join(''):'<p>Chưa có giao dịch nào.</p>')}
+function cusView(){return '<h2>Đặt làm theo yêu cầu</h2>'+(cus.length?cus.map(function(o){return '<div class="card ord"><div class="top"><b>'+esc(o.code)+'</b><span class="muted">'+esc(o.time)+'</span></div><div>'+esc(o.name)+' · <a href="tel:'+esc(o.phone)+'">'+esc(o.phone)+'</a> · <a href="https://zalo.me/'+esc(o.phone)+'" target="_blank" rel="noopener">Zalo</a></div><div>'+esc(o.model)+' · '+esc(o.color)+' · '+esc(o.size)+' · quai '+esc(o.strap)+' · SL '+esc(o.qty)+'</div><div class="muted">'+esc(o.note)+'</div>'+
+ '<div class="grid2"><div><label>Giá báo (₫)</label><input type="number" min="0" step="1000" data-q="'+esc(o.code)+'" value="'+(o.quote||'')+'"></div><div><label>Thời gian làm</label><input data-d="'+esc(o.code)+'" value="'+esc(o.days)+'" placeholder="Ví dụ: 7 ngày"></div></div><label>Trạng thái</label>'+sel('data-cs',o.code,CSTAT,o.status)+'<br><br><button class="red" data-cq="'+esc(o.code)+'">Lưu báo giá</button></div>'}).join(''):'<p>Chưa có yêu cầu nào.</p>')}
+function cfgView(){return '<h2>Cấu hình thanh toán</h2><form class="card" id="cg"><label for="g1">Tỷ lệ đặt cọc (%) – để trống để tắt đặt cọc</label><input id="g1" type="number" min="1" max="100" value="'+esc(cfg.depositPercent)+'"><label for="g2">Ngân hàng</label><input id="g2" value="'+esc(cfg.bankName)+'"><label for="g3">Số tài khoản</label><input id="g3" value="'+esc(cfg.bankAccount)+'"><label for="g4">Chủ tài khoản</label><input id="g4" value="'+esc(cfg.bankHolder)+'"><label for="g5">Ghi chú thanh toán</label><textarea id="g5" rows="2">'+esc(cfg.payNote)+'</textarea><br><button class="red" type="submit">Lưu cấu hình</button></form>'}
+function bind2(){
+ document.querySelectorAll('[data-tk]').forEach(function(b){b.onclick=function(){if(b.dataset.ok==='1'&&!confirm('Xác nhận đã nhận đủ tiền cọc cho ticket '+b.dataset.tk+'?'))return;b.disabled=true;
+  call('adminConfirmTicket',b.dataset.tk,b.dataset.ok==='1').then(function(){toast('Đã xử lý');return load()}).catch(function(e){toast(msg(e));load()})}});
+ document.querySelectorAll('[data-pay]').forEach(function(s){s.onchange=function(){s.disabled=true;call('adminSetPay',s.dataset.pay,s.value).then(function(){toast('Đã cập nhật');return load()}).catch(function(e){toast(msg(e));load()})}});
+ document.querySelectorAll('[data-cq]').forEach(function(b){b.onclick=function(){var c=b.dataset.cq;b.disabled=true;
+  call('adminQuoteCustom',c,document.querySelector('[data-q="'+c+'"]').value,document.querySelector('[data-d="'+c+'"]').value,document.querySelector('[data-cs="'+c+'"]').value).then(function(){toast('Đã lưu');return load()}).catch(function(e){toast(msg(e));b.disabled=false})}});
+ var g=$('#cg');if(g)g.onsubmit=function(e){e.preventDefault();call('adminSetConfig',{depositPercent:$('#g1').value,bankName:$('#g2').value,bankAccount:$('#g3').value,bankHolder:$('#g4').value,payNote:$('#g5').value}).then(function(){toast('Đã lưu');return load()}).catch(function(x){toast(msg(x))})}}
+function bind(){bind2();
  var f=$('#flt');if(f)f.onchange=function(){filter=f.value;render()};
  document.querySelectorAll('[data-st]').forEach(function(s){s.onchange=function(){s.disabled=true;
   call('adminSetStatus',s.dataset.st,s.value).then(function(){toast('Đã cập nhật');return load()}).catch(function(e){toast(msg(e));load()})}});
@@ -179,7 +143,7 @@ function bind(){
  var cx=$('#cx');if(cx)cx.onclick=function(){editing=null;render()};
  var pf=$('#pf');if(pf)pf.onsubmit=function(e){e.preventDefault();
   var p={id:editing.id,name:$('#n').value,cat:$('#c').value,color:$('#co').value,hex:$('#h').value,price:$('#pr').value,stock:$('#s').value,img:$('#im').value,note:$('#no').value,active:$('#ac').checked};
-  call('adminSaveProduct',p).then(function(){toast('Đã lưu');editing=null;return load()}).catch(function(x){toast(msg(x))})}}
+  var gv=$('#gr').value;call('adminSaveProduct',p).then(function(r){return call('adminSetGroup',(r&&r.id)||p.id,gv)}).then(function(){toast('Đã lưu');editing=null;return load()}).catch(function(x){toast(msg(x))})}}
 </script>
 </body>
 </html>
