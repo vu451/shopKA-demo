@@ -1,0 +1,4 @@
+Chép ảnh của các tổ vào thư mục này, đúng tên file (chữ thường, không dấu, đuôi .jpg):
+mo-hinh-dong-vat.jpg, thi-nghiem-catalase.jpg, mo-hinh-thuc-vat.jpg, co-nguyen-sinh.jpg,
+mo-hinh-mang.jpg, khoai-tay.jpg, do-nhip-tim.jpg, ca-lop.jpg
+Ảnh nào chưa có thì trang chủ tự hiện khung "Chưa có ảnh".

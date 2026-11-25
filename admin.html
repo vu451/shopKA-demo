@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Kim Anh – Quản trị</title>
+<style>
+:root{--bg:#FBEFB8;--paper:#FFF8D9;--brown:#5B3A24;--blue:#274B94;--red:#C42B1F;--ink:#1A1410;--line:#E2C95E;color-scheme:light}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 system-ui,'Be Vietnam Pro',sans-serif}
+.wrap{max-width:980px;margin:0 auto;padding:16px}
+h1,h2{color:var(--brown);margin:0 0 12px}
+header{background:var(--paper);border-bottom:2px solid var(--line);position:sticky;top:0;z-index:5}
+header .wrap{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding-block:10px}
+header h1{font-size:20px;margin:0;flex:1}
+.tabs{display:flex;gap:6px}
+button,.btn{font:inherit;cursor:pointer;border-radius:99px;border:2px solid var(--brown);background:none;color:var(--brown);padding:6px 16px;font-weight:600}
+button.on,button.red{background:var(--brown);color:var(--paper)}
+button.red{background:var(--red);border-color:var(--red);color:#fff}
+button:disabled{opacity:.5}
+:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
+.card{background:var(--paper);border:2px solid var(--line);border-radius:14px;padding:14px 16px;margin-bottom:12px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:16px}
+.stats b{display:block;font-size:26px;color:var(--brown)}
+label{display:block;font-weight:600;font-size:14px;margin:10px 0 4px}
+input,select,textarea{width:100%;font:inherit;padding:9px 11px;border:2px solid var(--line);border-radius:10px;background:#fff;color:var(--ink)}
+input[type=checkbox]{width:auto}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:0 12px}
+@media(max-width:560px){.grid2{grid-template-columns:1fr}}
+.ord{display:grid;gap:4px}
+.ord .top{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.badge{border-radius:99px;padding:1px 10px;font-size:13px;font-weight:600;background:var(--blue);color:#fff}
+.badge.Mới{background:var(--red)}.badge.Đã{background:#555}
+.prow{display:grid;grid-template-columns:56px 1fr auto;gap:12px;align-items:center}
+.prow img{width:56px;height:56px;object-fit:cover;border-radius:8px;background:var(--bg)}
+.muted{color:#6b5a3a;font-size:14px}
+.hide{display:none}
+.toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 18px;border-radius:99px;opacity:0;transition:.25s;pointer-events:none}
+.toast.on{opacity:1}
+a{color:var(--blue)}
+</style>
+</head>
+<body>
+<div id="login" class="wrap" style="max-width:420px;margin-top:12vh">
+<div class="card"><h1>Quản trị Kim Anh</h1>
+<form id="lf"><label for="k">Mã quản trị</label><input id="k" type="password" autocomplete="current-password">
+<p id="le" class="muted" style="color:var(--red);min-height:1.2em"></p>
+<button class="red" type="submit">Đăng nhập</button></form></div></div>
+
+<div id="app" class="hide">
+<header><div class="wrap"><h1>Kim Anh – Quản trị</h1>
+<nav class="tabs" aria-label="Mục"><button data-tab="dash">Tổng quan</button><button data-tab="orders">Đơn hàng</button><button data-tab="prods">Sản phẩm</button></nav>
+<button id="out">Đăng xuất</button></div></header>
+<main class="wrap" id="main"></main>
+</div>
+<div class="toast" id="toast" role="status"></div>
+
+<script src="config.js"></script>
+<script>
+var STATUSES=['Mới','Đã xác nhận','Đang làm','Đã giao','Đã hủy'];
+var $=function(s){return document.querySelector(s)};
+var KEY='',tab='dash',orders=[],prods=[],filter='Tất cả',editing=null;
+function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
+function money(n){return n>0?n.toLocaleString('vi-VN')+' ₫':'Chờ báo giá'}
+function toast(t){var e=$('#toast');e.textContent=t;e.classList.add('on');setTimeout(function(){e.classList.remove('on')},2200)}
+function call(fn){var a=[].slice.call(arguments,1),API=(window.KA_CONFIG||{}).API_URL||'';
+ if(!API||/DAN_|DÁN/.test(API))return Promise.reject(new Error('Chưa cấu hình API_URL trong config.js'));
+ var ac=window.AbortController?new AbortController():null,t=setTimeout(function(){ac&&ac.abort()},30000);
+ return fetch(API,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({fn:fn,args:[KEY].concat(a)}),signal:ac?ac.signal:undefined})
+  .then(function(r){return r.json()}).then(function(j){clearTimeout(t);if(j&&j.__err)throw new Error(j.__err);return j},function(e){clearTimeout(t);throw (e&&e.name==='AbortError'?new Error('Lỗi mạng, hãy thử lại.'):e)})}
+function msg(e){return (e&&e.message?e.message:String(e)).replace(/^Error:\s*/,'')}
+function imgUrl(i){return !i?'':/^http/.test(i)?i:/^[\w\-]+\.(jpe?g|png|webp)$/i.test(i)?'images/'+i:'https://drive.google.com/thumbnail?id='+i+'&sz=w200'}
+
+function enter(k){KEY=k;return call('adminLogin').then(function(){
+ try{sessionStorage.setItem('ka_k',k)}catch(e){}
+ $('#login').classList.add('hide');$('#app').classList.remove('hide');return load()})}
+function load(){return Promise.all([call('adminListOrders'),call('adminListProducts')]).then(function(r){orders=r[0];prods=r[1];render()})}
+$('#lf').addEventListener('submit',function(e){e.preventDefault();$('#le').textContent='';
+ enter($('#k').value).catch(function(x){KEY='';$('#le').textContent=msg(x)})});
+$('#out').onclick=function(){KEY='';try{sessionStorage.removeItem('ka_k')}catch(e){}location.reload()};
+document.querySelectorAll('[data-tab]').forEach(function(b){b.onclick=function(){tab=b.dataset.tab;editing=null;render()}});
+try{var sk=sessionStorage.getItem('ka_k');if(sk)enter(sk).catch(function(){KEY=''})}catch(e){}
+
+function render(){
+ document.querySelectorAll('[data-tab]').forEach(function(b){b.classList.toggle('on',b.dataset.tab===tab)});
+ $('#main').innerHTML=tab==='dash'?dash():tab==='orders'?ordersView():prodsView();
+ bind()}
+function dash(){
+ var c=function(s){return orders.filter(function(o){return o.status===s}).length};
+ var rev=orders.filter(function(o){return o.status==='Đã giao'}).reduce(function(a,o){return a+o.total},0);
+ var quote=orders.filter(function(o){return o.total===0&&o.status!=='Đã hủy'&&o.status!=='Đã giao'}).length;
+ var low=prods.filter(function(p){return p.active&&p.stock!==''&&p.stock<=1});
+ return '<h2>Tổng quan</h2><div class="stats">'+
+ '<div class="card">Đơn mới<b>'+c('Mới')+'</b></div>'+
+ '<div class="card">Đang xử lý<b>'+(c('Đã xác nhận')+c('Đang làm'))+'</b></div>'+
+ '<div class="card">Đã giao<b>'+c('Đã giao')+'</b></div>'+
+ '<div class="card">Doanh thu đã giao<b>'+rev.toLocaleString('vi-VN')+' ₫</b></div>'+
+ '<div class="card">Chờ báo giá<b>'+quote+'</b></div></div>'+
+ '<div class="card"><b>Sắp hết hàng (còn 0–1)</b><br>'+(low.length?low.map(function(p){return esc(p.name)+' ('+p.stock+')'}).join('<br>'):'<span class="muted">Không có.</span>')+'</div>'+
+ '<p class="muted">Thống kê tính trên 300 đơn gần nhất. Doanh thu chưa gồm phí ship.</p>'}
+function ordersView(){
+ var list=orders.filter(function(o){return filter==='Tất cả'||o.status===filter});
+ return '<h2>Đơn hàng</h2><label for="flt">Lọc theo trạng thái</label><select id="flt"><option>Tất cả</option>'+STATUSES.map(function(s){return '<option'+(s===filter?' selected':'')+'>'+s+'</option>'}).join('')+'</select><br><br>'+
+ (list.length?list.map(function(o){
+  var zl='https://zalo.me/'+esc(o.phone);
+  return '<div class="card ord"><div class="top"><b>'+esc(o.code)+'</b><span class="muted">'+esc(o.time)+'</span><span class="badge '+esc(o.status.split(' ')[0])+'">'+esc(o.status)+'</span></div>'+
+  '<div>'+esc(o.name)+' · <a href="tel:'+esc(o.phone)+'">'+esc(o.phone)+'</a> · <a href="'+zl+'" target="_blank" rel="noopener">Zalo</a></div>'+
+  '<div>'+esc(o.address)+'</div><div>'+o.items.map(esc).join('<br>')+'</div>'+(o.note?'<div class="muted">Ghi chú: '+esc(o.note)+'</div>':'')+
+  '<div><b>'+money(o.total)+'</b></div>'+
+  (o.status==='Đã hủy'?'':'<label>Đổi trạng thái</label><select data-st="'+esc(o.code)+'">'+STATUSES.map(function(s){return '<option'+(s===o.status?' selected':'')+'>'+s+'</option>'}).join('')+'</select>')+'</div>'}).join(''):'<p>Chưa có đơn nào ở trạng thái này.</p>')}
+function prodsView(){
+ if(editing)return form();
+ return '<h2>Sản phẩm</h2><button class="red" id="addp">Thêm sản phẩm</button><br><br>'+
+ prods.map(function(p){return '<div class="card prow"><img src="'+esc(imgUrl(p.img))+'" alt=""><div><b>'+esc(p.name)+'</b><br><span class="muted">'+esc(p.cat)+' · '+esc(p.color)+' · '+money(p.price)+' · Tồn: '+(p.stock===''?'không giới hạn':p.stock)+(p.active?'':' · ĐANG ẨN')+'</span></div><button data-edit="'+esc(p.id)+'">Sửa</button></div>'}).join('')}
+function form(){var p=editing;
+ return '<h2>'+(p.id?'Sửa sản phẩm':'Thêm sản phẩm')+'</h2><form class="card" id="pf"><label for="n">Tên</label><input id="n" value="'+esc(p.name)+'">'+
+ '<div class="grid2"><div><label for="c">Nhóm</label><input id="c" value="'+esc(p.cat)+'" placeholder="Túi hoa nổi"></div><div><label for="co">Màu</label><input id="co" value="'+esc(p.color)+'"></div>'+
+ '<div><label for="h">Mã màu (hex)</label><input id="h" value="'+esc(p.hex||'#5B3A24')+'"></div><div><label for="pr">Giá (₫, để 0 nếu báo giá riêng)</label><input id="pr" type="number" min="0" step="1000" value="'+(p.price||0)+'"></div>'+
+ '<div><label for="s">Tồn kho (để trống nếu không giới hạn)</label><input id="s" type="number" min="0" value="'+esc(p.stock)+'"></div><div><label for="im">Ảnh (ID file Drive hoặc link)</label><input id="im" value="'+esc(p.img)+'"></div></div>'+
+ '<label for="no">Mô tả</label><textarea id="no" rows="3">'+esc(p.note)+'</textarea>'+
+ '<label><input type="checkbox" id="ac"'+(p.active?' checked':'')+'> Hiển thị trên web</label><br><button class="red" type="submit">Lưu sản phẩm</button> <button type="button" id="cx">Hủy</button></form>'}
+function bind(){
+ var f=$('#flt');if(f)f.onchange=function(){filter=f.value;render()};
+ document.querySelectorAll('[data-st]').forEach(function(s){s.onchange=function(){s.disabled=true;
+  call('adminSetStatus',s.dataset.st,s.value).then(function(){toast('Đã cập nhật');return load()}).catch(function(e){toast(msg(e));load()})}});
+ var a=$('#addp');if(a)a.onclick=function(){editing={id:'',name:'',cat:'',color:'',hex:'#5B3A24',price:0,note:'',img:'',stock:'',active:true};render()};
+ document.querySelectorAll('[data-edit]').forEach(function(b){b.onclick=function(){editing=Object.assign({},prods.filter(function(p){return p.id===b.dataset.edit})[0]);render()}});
+ var cx=$('#cx');if(cx)cx.onclick=function(){editing=null;render()};
+ var pf=$('#pf');if(pf)pf.onsubmit=function(e){e.preventDefault();
+  var p={id:editing.id,name:$('#n').value,cat:$('#c').value,color:$('#co').value,hex:$('#h').value,price:$('#pr').value,stock:$('#s').value,img:$('#im').value,note:$('#no').value,active:$('#ac').checked};
+  call('adminSaveProduct',p).then(function(){toast('Đã lưu');editing=null;return load()}).catch(function(x){toast(msg(x))})}}
+</script>
+</body>
+</html>
