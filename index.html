@@ -426,7 +426,7 @@ function feat(n){return FEAT[n]!==false}
 function jget(k,d){try{var v=JSON.parse(localStorage.getItem(k));return v==null?d:v}catch(e){return d}}
 function jset(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
 var cart=jget("ka_cart",[]),orders=jget("ka_orders",[]).filter(function(o){return o&&o.code}),info=jget("ka_info",{}),
- tab="cart",RID=null,fresh="",LAST=null,cur="Tất cả",loadErr="",qs="",srt="",GRP={},SEL={},PC=null,PTIMER=null,lastN=-1,lastFocus=null;
+ tab="cart",RID=null,fresh="",LAST=null,cur="Tất cả",loadErr="",productsFresh=false,qs="",srt="",GRP={},SEL={},PC=null,PTIMER=null,lastN=-1,lastFocus=null;
 function saveCart(){jset("ka_cart",cart);RID=null}
 function saveOrders(){jset("ka_orders",orders)}
 function money(n){return n>0?n.toLocaleString("vi-VN")+" ₫":"Liên hệ báo giá"}
@@ -465,11 +465,11 @@ function grp(L){var seen={},out=[];L.forEach(function(p){var k=gkey(p);if(seen[k
 function sws(p,attr){var vs=vars(p);if(vs.length<2)return"";
  return '<div class="vrow" role="group" aria-label="Chọn màu">'+vs.map(function(v){return '<button type="button" class="swb" '+attr+'="'+esc(v.id)+'" aria-pressed="'+(v.id===p.id)+'" aria-label="'+esc(v.color)+(v.stock<=0?' (hết hàng)':'')+'" title="'+esc(v.color)+'" style="background:'+esc(v.c)+(v.stock<=0?';opacity:.4':'')+'"></button>'}).join("")+'</div>'}
 function stk(p){var out=p.stock<=0&&!p.preorder,low=!out&&p.stock<=3;return '<span class="stk'+(out?' out':low?' low':'')+'">'+(out?'Hết hàng':p.stock<=0&&p.preorder?'Nhận đặt trước · '+(p.leadDays||'sẽ xác nhận')+' ngày':low?'Chỉ còn '+p.stock:'Còn hàng')+'</span>'}
-function cardHtml(p,i){var id=esc(p.id),out=p.stock<=0&&!p.preorder,w=sws(p,"data-var");
+function cardHtml(p,i){var id=esc(p.id),out=p.stock<=0&&!p.preorder,w=sws(p,"data-var"),needsChoice=(p.materials&&p.materials.length)||(p.colors&&p.colors.length)||(p.customOptions&&p.customOptions.length);
  return '<article class="card rv" style="--d:'+Math.min(i,8)*55+'ms"><div class="pic">'+pic(p)+'</div><div class="in">'+
  (w?'<span class="tag">'+esc(p.color)+'</span>'+w:'<span class="tag"><i class="sw" style="background:'+esc(p.c)+'"></i>'+esc(p.color)+'</span>')+
  '<h3>'+esc(p.name)+'</h3><span class="price">'+money(p.price)+'</span>'+stk(p)+
- (out?'':'<div class="qty" role="group" aria-label="Số lượng"><button type="button" data-cq="-1" data-qid="'+id+'" aria-label="Giảm">−</button><span id="q_'+id+'" aria-live="polite">1</span><button type="button" data-cq="1" data-qid="'+id+'" aria-label="Tăng">+</button></div><div class="cbtns"><button type="button" class="btn" data-addq="'+id+'">Thêm vào giỏ</button><button type="button" class="btn red" data-buy="'+id+'">Đặt mua</button></div>')+
+ (out?'':'<div class="qty" role="group" aria-label="Số lượng"><button type="button" data-cq="-1" data-qid="'+id+'" aria-label="Giảm">−</button><span id="q_'+id+'" aria-live="polite">1</span><button type="button" data-cq="1" data-qid="'+id+'" aria-label="Tăng">+</button></div><div class="cbtns">'+(needsChoice?'<button type="button" class="btn red" data-view="'+id+'">Chọn sợi / tùy chọn</button>':'<button type="button" class="btn" data-addq="'+id+'">Thêm vào giỏ</button><button type="button" class="btn red" data-buy="'+id+'">Đặt mua</button>')+'</div>')+
  '<button type="button" class="lnk" data-view="'+id+'">Xem chi tiết</button><button type="button" class="lnk" data-qv="'+id+'">Xem nhanh</button></div></article>'}
 function skeleton(){var h="";for(var i=0;i<8;i++)h+='<div class="card sk" aria-hidden="true"><div class="pic"></div><div class="in"><i></i><i></i><i></i></div></div>';return h}
 function renderFilters(){
@@ -485,16 +485,21 @@ function renderGrid(anim){var g=$("#grid");
  if(!CONFIG.products.length){g.innerHTML=loadErr?'<div class="note" style="grid-column:1/-1">Không tải được sản phẩm. '+esc(loadErr)+' <button type="button" class="mini" id="retry">Thử lại</button></div>':skeleton();return}
  var t=String(qs||"").trim().toLowerCase(),L=CONFIG.products.filter(function(p){return(cur==="Tất cả"||p.cat===cur)&&(!t||[p.name,p.id,p.cat,p.color].join(" ").toLowerCase().indexOf(t)>=0)});
  if(srt==="a")L.sort(function(x,y){return x.price-y.price});if(srt==="d")L.sort(function(x,y){return y.price-x.price});
- g.innerHTML=L.length?grp(L).map(cardHtml).join(""):'<p class="note" style="grid-column:1/-1">Không có sản phẩm phù hợp.</p>';
+ g.innerHTML=(!productsFresh&&loadErr?'<div class="note" style="grid-column:1/-1">Chưa đồng bộ được giá mới nhất: '+esc(loadErr)+'. Giá đang hiển thị có thể là dữ liệu lưu trên thiết bị.</div>':'')+(L.length?grp(L).map(cardHtml).join(""):'<p class="note" style="grid-column:1/-1">Không có sản phẩm phù hợp.</p>');
  reveal(g,anim)}
 function qv(id){var e=$("#q_"+id);return Math.max(1,parseInt(e&&e.textContent,10)||1)}
 function qchg(id,d){var p=find(id),e=$("#q_"+id);if(!p||!e)return;var m=Math.min(20,p.stock>0?p.stock:(p.preorder?20:1)),n=qv(id)+d;if(n>m){toast("Đã đạt số lượng tối đa");n=m}e.textContent=Math.max(1,n)}
 function paint(){renderFilters();renderGrid();renderCart();renderOrders()}
 function loadProducts(){
+ productsFresh=false;
  var c=jget("ka_prod",null);
  if(c&&c.length&&!CONFIG.products.length){CONFIG.products=c;paint()}else if(!CONFIG.products.length)renderGrid();
- api("getProducts").then(function(p){CONFIG.products=p;loadErr="";jset("ka_prod",p);paint()})
- .catch(function(e){loadErr=netmsg(e);if(!CONFIG.products.length)paint()})}
+ api("getProducts").then(function(p){
+  if(!Array.isArray(p))throw new Error("Dữ liệu sản phẩm từ máy chủ không hợp lệ.");
+  CONFIG.products=p;loadErr="";productsFresh=true;jset("ka_prod",p);
+  cart.forEach(function(i){var product=find(i.id);if(!product)return;var r=resolveSelections(product,i.selections||[]);if(r.valid)i.selections=r.selections});
+  saveCart();paint()
+ }).catch(function(e){loadErr=netmsg(e);productsFresh=false;paint()})}
 
 /* ---- ngăn kéo / menu ---- */
 function openP(id){var p=$(id);lastFocus=document.activeElement;p.classList.add("on");p.setAttribute("aria-hidden","false");$("#scrim").classList.add("on");document.body.classList.add("lock");
@@ -512,6 +517,29 @@ function optionSelect(type,label,list) {
  if(!list||!list.length)return '';
  return '<label>'+esc(label)+'</label><select data-opt="'+esc(type)+'"><option value="">Chọn '+esc(label.toLowerCase())+'</option>'+
  list.map(function(x){var o=typeof x==='string'?{name:x,price:0}:x;return '<option value="'+esc(o.name)+'" data-price="'+(Number(o.price)||0)+'">'+esc(o.name)+(Number(o.price)>0?' (+'+money(o.price)+')':'')+'</option>'}).join('')+'</select>';
+}
+function selectedOption(p, selection) {
+ var type=String(selection.type||''), list=[];
+ if(type==='Chất liệu sợi') list=p.materials||[];
+ else if(type==='Màu sợi') list=p.colors||[];
+ else {
+  var group=(p.customOptions||[]).filter(function(g){return String(g.name)===type})[0];
+  if(!group)return null;
+  list=group.choices||[];
+ }
+ var found=list.filter(function(x){return String(typeof x==='string'?x:x.name)===String(selection.name)})[0];
+ if(!found)return null;
+ var obj=typeof found==='string'?{name:found,price:0}:found, price=obj.price==null||obj.price===''?0:Number(obj.price);
+ if(!isFinite(price)||price<0)return null;
+ return {type:type,name:String(obj.name),price:Math.round(price)};
+}
+function resolveSelections(p, selections) {
+ var out=[],extra=0,valid=true,types={};
+ (selections||[]).forEach(function(x){var found=selectedOption(p,x);if(!found){valid=false;return}out.push(found);types[found.type]=true;extra+=found.price});
+ if((p.materials||[]).length&&!types['Chất liệu sợi'])valid=false;
+ if((p.colors||[]).length&&!types['Màu sợi'])valid=false;
+ (p.customOptions||[]).forEach(function(g){if(!types[String(g.name)])valid=false});
+ return {valid:valid&&out.length===(selections||[]).length,selections:out,extra:extra};
 }
 function view(id){var p=find(id);if(!p)return;
  var opts=optionSelect('material','Chất liệu sợi',p.materials)+optionSelect('selectedColor','Màu sợi',p.colors);
@@ -542,30 +570,42 @@ function renderCart(){
  draft();updateCounts();var box=$("#paneCart");
  if(!cart.length){box.innerHTML='<div class="empty"><p><b>Giỏ hàng đang trống.</b></p><p class="hint">Chọn một chiếc túi ở mục Cửa hàng.</p><p><a class="btn red" href="#cua-hang" data-close>Xem túi</a></p>'+(orders.length?'<p><button type="button" class="btn" data-tab="orders">Xem đơn đã đặt ('+orders.length+')</button></p>':'')+'</div>';return}
  if(!CONFIG.products.length){box.innerHTML='<p class="note">'+(loadErr?'Chưa tải được sản phẩm: '+esc(loadErr)+' <button type="button" class="mini" id="retry">Thử lại</button>':'Đang tải giỏ hàng…')+'</p>';return}
- var sum=0,priced=true,rows=cart.map(function(i){var p=find(i.id);
+ var sum=0,priced=productsFresh,cartChanged=false,rows=cart.map(function(i){var p=find(i.id);
   if(!p)return '<div class="crow"><div></div><div><b>Sản phẩm không còn bán</b><div class="cctl"><button type="button" class="lnk" data-rm="'+esc(i.id)+'">Xóa khỏi giỏ</button></div></div></div>';
-  var extra=(i.selections||[]).reduce(function(a,x){return a+(Number(x.price)||0)},0),unit=Number(p.price||0)+extra,lt=unit*i.q;sum+=lt;if(!p.price)priced=false;
-  return '<div class="crow">'+pic(p)+'<div><b>'+esc(p.name)+'</b><div class="hint">'+esc(p.color)+' · '+money(p.price)+'</div><div class="cctl"><div class="qty"><button type="button" data-dec="'+esc(i.id)+'" aria-label="Giảm">−</button><span>'+i.q+'</span><button type="button" data-inc="'+esc(i.id)+'" aria-label="Tăng">+</button></div><span class="lt">'+(p.price?money(lt):"Chờ báo giá")+'</span><button type="button" class="lnk" data-rm="'+esc(i.id)+'">Xóa</button></div></div></div>'}).join("");
+  var resolved=resolveSelections(p,i.selections||[]),extra=resolved.extra,unit=Number(p.price||0)+extra,lt=unit*i.q;
+  if(!resolved.valid){priced=false}else{
+   if(JSON.stringify(i.selections||[])!==JSON.stringify(resolved.selections)){i.selections=resolved.selections;cartChanged=true}
+  }
+  sum+=lt;if(!(Number(p.price)>0))priced=false;
+  var selectedText=resolved.valid&&resolved.selections.length?'<div class="hint">Đã chọn: '+resolved.selections.map(function(x){return esc(x.type)+': '+esc(x.name)+(x.price?' (+'+money(x.price)+')':'')}).join(' · ')+'</div>':'';
+  var invalidText=!resolved.valid?'<div class="err">Lựa chọn sợi/tùy chọn đã thay đổi hoặc không còn hợp lệ. <button type="button" class="lnk" data-view="'+esc(i.id)+'">Chọn lại</button></div>':'';
+  return '<div class="crow">'+pic(p)+'<div><b>'+esc(p.name)+'</b><div class="hint">'+esc(p.color)+' · Giá gốc: '+money(p.price)+'</div>'+selectedText+invalidText+'<div class="cctl"><div class="qty"><button type="button" data-dec="'+esc(i.id)+'" aria-label="Giảm">−</button><span>'+i.q+'</span><button type="button" data-inc="'+esc(i.id)+'" aria-label="Tăng">+</button></div><span class="lt">'+(resolved.valid&&p.price?money(lt):'Kiểm tra lựa chọn')+'</span><button type="button" class="lnk" data-rm="'+esc(i.id)+'">Xóa</button></div></div></div>'
+ }).join("");
+ if(cartChanged)saveCart();
  var n=cart.reduce(function(a,i){return a+i.q},0);
- box.innerHTML='<section class="blk"><h3><span class="n">1</span>Sản phẩm trong giỏ ('+n+')</h3>'+rows+'</section>'+
+ box.innerHTML='<section class="blk"><h3><span class="n">1</span>Sản phẩm trong giỏ ('+n+')</h3>'+(productsFresh?'':'<div class="note">'+esc(loadErr||'Đang đồng bộ giá từ máy chủ...')+' Giá hiển thị từ bộ nhớ thiết bị chưa được xác nhận.</div>')+rows+'</section>'+
  '<form id="f" novalidate><section class="blk"><h3><span class="n">2</span>Thông tin nhận hàng</h3>'+
  '<label for="n">Họ tên</label><input id="n" autocomplete="name" value="'+esc(info.name)+'"><div class="err" id="en"></div>'+
  '<label for="ph">Số điện thoại</label><input id="ph" inputmode="tel" autocomplete="tel" value="'+esc(info.phone)+'"><div class="err" id="ep"></div>'+
  '<label for="ad">Địa chỉ nhận hàng</label><textarea id="ad" rows="2" autocomplete="street-address">'+esc(info.address)+'</textarea><div class="err" id="ea"></div>'+
  '<label for="nt">Ghi chú</label><input id="nt" value="'+esc(info.note)+'"></section>'+
- '<section class="blk"><h3><span class="n">3</span>Xác nhận đặt hàng</h3><dl class="sum"><div><dt>Số lượng</dt><dd>'+n+' sản phẩm</dd></div><div><dt>Phí ship</dt><dd>Trao đổi qua Zalo</dd></div><div class="tt"><dt>Tạm tính</dt><dd>'+(priced?money(sum):"Chờ báo giá")+'</dd></div></dl>'+
- '<div class="note">Không cần tạo tài khoản. Sau khi tạo đơn, bạn có thể đặt cọc ở mục “Đơn đã đặt”. Sản phẩm không đổi trả.</div><button class="btn red" style="width:100%" type="submit">Tạo đơn hàng</button></section></form>'}
+ '<section class="blk"><h3><span class="n">3</span>Xác nhận đặt hàng</h3><dl class="sum"><div><dt>Số lượng</dt><dd>'+n+' sản phẩm</dd></div><div><dt>Phí ship</dt><dd>Trao đổi qua Zalo</dd></div><div class="tt"><dt>Tạm tính</dt><dd>'+(priced?money(sum):'Cần kiểm tra lựa chọn')+'</dd></div></dl>'+
+ '<div class="note">Không cần tạo tài khoản. Sau khi tạo đơn, bạn có thể đặt cọc ở mục “Đơn đã đặt”. Sản phẩm không đổi trả.</div><button class="btn red" style="width:100%" type="submit">Tạo đơn hàng</button></section></form>';
+}
 function submit(e){e.preventDefault();
  var n=$("#n").value.trim(),ph=$("#ph").value.trim(),ad=$("#ad").value.trim(),ok=true;
  $("#en").textContent=n.length<2?(ok=false,"Nhập họ tên."):"";
  $("#ep").textContent=!/^(0|\+84)\d{9,10}$/.test(ph.replace(/\s/g,""))?(ok=false,"Nhập số điện thoại hợp lệ, ví dụ 0912345678."):"";
  $("#ea").textContent=ad.length<8?(ok=false,"Nhập địa chỉ đầy đủ."):"";
  if(!ok)return;
+ if(!productsFresh){toast("Chưa đồng bộ được giá mới nhất từ máy chủ. Hãy tải lại trang rồi thử lại.");return}
+ var checkedLines=cart.map(function(i){var p=find(i.id);if(!p)return null;var r=resolveSelections(p,i.selections||[]);return r.valid?{item:i,product:p,resolved:r}:null});
+ if(checkedLines.some(function(x){return !x})){toast("Có lựa chọn sợi không còn hợp lệ. Vui lòng bấm Chọn lại trước khi đặt hàng.");return}
  var btn=$("#f button[type=submit]");btn.disabled=true;btn.textContent="Đang gửi...";
  function reset(){var b=$("#f button[type=submit]");if(b){b.disabled=false;b.textContent="Tạo đơn hàng"}}
  if(!RID)RID="r"+Date.now().toString(36)+Math.random().toString(36).slice(2,8);
- var lines=cart.map(function(i){var p=find(i.id);return p?p.name+" ("+p.color+") "+(i.selections||[]).map(function(x){return x.type+": "+x.name}).join(", ")+" x"+i.q:i.id+" x"+i.q});
- api("createOrder",{name:n,phone:ph,address:ad,note:$("#nt").value.trim(),items:cart.map(function(i){var p=find(i.id);var o={id:i.id,q:i.q,preorder:!!(p&&p.preorder),options:{}};(i.selections||[]).forEach(function(x){if(x.type==="Chất liệu sợi")o.material=x.name;else if(x.type==="Màu sợi")o.selectedColor=x.name;else o.options[x.type]=x.name});return o}),rid:RID}).then(function(r){
+ var lines=checkedLines.map(function(line){var i=line.item,p=line.product;return p.name+(p.color?" ("+p.color+")":"")+" "+line.resolved.selections.map(function(x){return x.type+": "+x.name}).join(", ")+" x"+i.q});
+ api("createOrder",{name:n,phone:ph,address:ad,note:$("#nt").value.trim(),items:checkedLines.map(function(line){var i=line.item,p=line.product,o={id:i.id,q:i.q,preorder:!!p.preorder,options:{}};line.resolved.selections.forEach(function(x){if(x.type==="Chất liệu sợi")o.material=x.name;else if(x.type==="Màu sợi")o.selectedColor=x.name;else o.options[x.type]=x.name});return o}),rid:RID}).then(function(r){
   if(!r.ok){reset();toast(r.error);return}
   if(!orders.some(function(o){return o.code===r.code}))orders.unshift({code:r.code,kind:"order",phone:normPhone(ph),time:Date.now(),total:r.total,items:lines,status:"Mới",preorder:!!r.preorder,leadDays:r.leadDays||0,payStatus:"Chưa thanh toán",paid:0,deposit:0,ticket:"",checked:Date.now()});
   orders=orders.slice(0,30);saveOrders();info={name:n,phone:ph,address:ad};jset("ka_info",info);
