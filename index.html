@@ -270,6 +270,21 @@ html:not(.js) .rv{opacity:1}
 }
 /* --- Máy tính lớn --- */
 @media(min-width:1280px){.grid{grid-template-columns:repeat(4,1fr)}}
+/* --- Tối ưu chuyển động và thao tác trên điện thoại --- */
+@media(max-width:760px){
+ .hero .wrap>div{animation:mobileRise .72s var(--e) both}
+ .hero .bagart{animation:mobileFloat 6s ease-in-out infinite;will-change:transform}
+ .card,.craft div,.steps li,.formcard,.blk{transition:transform .28s var(--e),box-shadow .28s var(--e)}
+ .card:active,.craft div:active,.steps li:active{transform:scale(.985)}
+ input,textarea,select{min-height:48px;border-radius:14px}
+ .btn,.mini,.chip,.cartbtn,.hb{touch-action:manipulation}
+ .btn:active,.mini:active,.chip:active{transform:scale(.97);filter:brightness(.97)}
+ .panel{transition:transform .42s cubic-bezier(.2,.8,.2,1),visibility 0s .42s}
+ .panel.on{transition-delay:0s}
+}
+@keyframes mobileRise{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+@keyframes mobileFloat{0%,100%{transform:translateY(0) rotate(1deg)}50%{transform:translateY(-7px) rotate(-1deg)}}
+
 /* --- Điện thoại (≤760px): thanh điều hướng dưới + menu --- */
 @media(max-width:760px){
  :root{--hh:62px}html.sc{--hh:56px}
@@ -433,7 +448,9 @@ function money(n){return n>0?n.toLocaleString("vi-VN")+" ₫":"Liên hệ báo g
 function money0(n){return n>0?n.toLocaleString("vi-VN")+" ₫":"—"}
 function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})}
 function fmt(ms){return ms?new Date(ms).toLocaleString("vi-VN",{dateStyle:"short",timeStyle:"short"}):""}
-function normPhone(p){p=String(p||"").replace(/[\s.\-()]/g,"");return p.replace(/^\+84/,"0").replace(/^84/,"0")}
+function normPhone(p){p=String(p||"").trim().replace(/[\s.\-()]/g,"");return p.replace(/^\+84/,"0").replace(/^84/,"0")}
+/* Số di động Việt Nam: 10 chữ số, chấp nhận đầu số 03/05/07/08/09 */
+function validVNPhone(p){return /^(03|05|07|08|09)\d{8}$/.test(normPhone(p))}
 function netmsg(e){return(!e||e.name==="AbortError"||/fetch|network|load failed/i.test(e.message||""))?"Lỗi mạng, hãy thử lại.":e.message}
 function copy(t){var ok=function(){toast("Đã sao chép")};if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(t).then(ok,function(){toast(t)});else toast(t)}
 function toast(t){var e=$("#toast");e.textContent=t;e.classList.add("on");clearTimeout(toast.t);toast.t=setTimeout(function(){e.classList.remove("on")},2400)}
@@ -593,9 +610,9 @@ function renderCart(){
  '<div class="note">Không cần tạo tài khoản. Sau khi tạo đơn, bạn có thể đặt cọc ở mục “Đơn đã đặt”. Sản phẩm không đổi trả.</div><button class="btn red" style="width:100%" type="submit">Tạo đơn hàng</button></section></form>';
 }
 function submit(e){e.preventDefault();
- var n=$("#n").value.trim(),ph=$("#ph").value.trim(),ad=$("#ad").value.trim(),ok=true;
+ var n=$("#n").value.trim(),ph=normPhone($("#ph").value),ad=$("#ad").value.trim(),ok=true;
  $("#en").textContent=n.length<2?(ok=false,"Nhập họ tên."):"";
- $("#ep").textContent=!/^(0|\+84)\d{9,10}$/.test(ph.replace(/\s/g,""))?(ok=false,"Nhập số điện thoại hợp lệ, ví dụ 0912345678."):"";
+ $("#ep").textContent=!validVNPhone(ph)?(ok=false,"Nhập số di động 10 số, đầu 03, 05, 07, 08 hoặc 09."):"";
  $("#ea").textContent=ad.length<8?(ok=false,"Nhập địa chỉ đầy đủ."):"";
  if(!ok)return;
  if(!productsFresh){toast("Chưa đồng bộ được giá mới nhất từ máy chủ. Hãy tải lại trang rồi thử lại.");return}
@@ -750,8 +767,11 @@ $("#pr").addEventListener("click",function(e){var t=e.target.closest("button");i
  else if(d.cancel){if(confirm("Hủy mã chuyển khoản này? Bạn có thể tạo mã mới sau."))act("cancelTicket",[PC.c,PC.p],function(){return "Đã hủy mã chuyển khoản"})}
  else if(d.paid)act("reportPaid",[PC.c,PC.p,d.paid],function(){return "Đã báo cho cửa hàng"})});
 $("#cr").addEventListener("click",function(e){var t=e.target.closest("button");if(!t)return;if(t.dataset.cp)copy(t.dataset.cp);if(t.dataset.openorders)openCart("orders")});
-function sendCustom(){var b=$("#cf button[type=submit]");b.disabled=true;var ph=$("#cp").value,cr=$("#cr");
- var model=$("#cm").value,qty=$("#cu").value;
+function sendCustom(){var b=$("#cf button[type=submit]"),ph=normPhone($("#cp").value),cr=$("#cr");
+ cr.classList.remove("hidden");
+ if(!validVNPhone(ph)){cr.textContent="Nhập số di động 10 số, đầu 03, 05, 07, 08 hoặc 09 (có thể nhập +84).";return}
+ b.disabled=true;
+ var model=$("#cm").value.trim(),qty=$("#cu").value;
  api("createCustom",{name:$("#cn").value,phone:ph,model:model,color:$("#cl").value,size:$("#cs").value,strap:$("#cq2").value,qty:qty,note:$("#cv").value}).then(function(r){
   b.disabled=false;cr.classList.remove("hidden");if(!r.ok){cr.textContent=r.error;return}
   orders.unshift({code:r.code,kind:"custom",phone:normPhone(ph),time:Date.now(),total:0,items:[(model||"Đặt làm")+" x"+qty],status:"Mới",payStatus:"Chưa thanh toán",paid:0,deposit:0,ticket:"",checked:Date.now()});
