@@ -270,9 +270,27 @@ mainEl.addEventListener('change',function(e){var s=e.target;
   return run(isC?call('adminQuoteCustom',s.dataset.st,o.quote,o.days,s.value):call('adminSetStatus',s.dataset.st,s.value),'Đã cập nhật')}
  if(s.dataset.pay){s.disabled=true;run(call('adminSetPay',s.dataset.pay,s.value),'Đã cập nhật thanh toán')}});
 mainEl.addEventListener('submit',function(e){e.preventDefault();var id=e.target.id,btn=e.target.querySelector('[type=submit]');btn.disabled=true;
- if(id==='pf'){function readRows(id){return Array.from(document.querySelectorAll('#'+id+'-list .option-row')).map(function(r){return {name:r.querySelector('[data-opt-name]').value.trim(),price:Number(r.querySelector('[data-opt-price]').value)||0}}).filter(function(x){return x.name})}function readGroups(){return Array.from(document.querySelectorAll('#custom-list .custom-group')).map(function(g){var choices=(g.querySelector('[data-group-choices]').value||'').split(/\n/).map(function(line){var a=line.split('|');return {name:(a[0]||'').trim(),price:Number((a[1]||'0').trim())||0}}).filter(function(x){return x.name});return {name:g.querySelector('[data-group-name]').value.trim(),choices:choices}}).filter(function(x){return x.name&&x.choices.length})}var p={id:editing.id,name:$('#n').value,cat:$('#c').value,color:$('#co').value,hex:$('#h').value,price:$('#pr').value,stock:$('#s').value,img:$('#im').value,note:$('#no').value,active:$('#ac').checked,
-   materials:readRows('materials'),colors:readRows('colors'),customOptions:readGroups(),preorder:$('#preorder').checked,leadDays:$('#leadDays').value},gr=$('#gr').value;
-  call('adminSaveProduct',p).then(function(r){return call('adminSetGroup',r.id,gr)}).then(function(){toast('Đã lưu');editing=null;return go('prods',true)}).catch(function(x){btn.disabled=false;toast(msg(x))})}
+ if(id==='pf'){
+  try {
+   function parseOptionPrice(value,label){var raw=String(value==null?'':value).trim(),n=raw===''?0:Number(raw);if(!isFinite(n)||n<0)throw new Error(label+' phải là số không âm.');return Math.round(n)}
+   function readRows(listId){return Array.from(document.querySelectorAll('#'+listId+'-list .option-row')).map(function(r){return {name:r.querySelector('[data-opt-name]').value.trim(),price:parseOptionPrice(r.querySelector('[data-opt-price]').value,'Phụ thu')}}).filter(function(x){return x.name})}
+   function readGroups(){return Array.from(document.querySelectorAll('#custom-list .custom-group')).map(function(g){var choices=(g.querySelector('[data-group-choices]').value||'').split(/\n/).map(function(line){var a=line.split('|'),name=(a[0]||'').trim();if(!name)return null;return {name:name,price:parseOptionPrice(a.slice(1).join('|'),'Phụ thu của '+name)}}).filter(Boolean);return {name:g.querySelector('[data-group-name]').value.trim(),choices:choices}}).filter(function(x){return x.name&&x.choices.length})}
+   var p={id:editing.id,name:$('#n').value.trim(),cat:$('#c').value,color:$('#co').value,hex:$('#h').value,price:$('#pr').value,stock:$('#s').value,img:$('#im').value,note:$('#no').value,active:$('#ac').checked,
+    materials:readRows('materials'),colors:readRows('colors'),customOptions:readGroups(),preorder:$('#preorder').checked,leadDays:$('#leadDays').value},gr=$('#gr').value;
+   if(!p.name||p.name.length<2)throw new Error('Tên sản phẩm cần ít nhất 2 ký tự.');
+   if(!isFinite(Number(p.price))||Number(p.price)<0)throw new Error('Giá bán phải là số không âm.');
+   call('adminSaveProduct',p).then(function(r){
+    if(!r||!r.ok||!r.id)throw new Error('Máy chủ chưa xác nhận lưu sản phẩm.');
+    return call('adminSetGroup',r.id,gr).then(function(){return call('adminListProducts')}).then(function(list){
+     var saved=(list||[]).filter(function(x){return String(x.id)===String(r.id)})[0];
+     if(!saved)throw new Error('Đã gửi lưu nhưng không đọc lại được sản phẩm. Hãy tải lại trang quản trị.');
+     if(Number(saved.price)!==Math.round(Number(p.price)))throw new Error('Giá đọc lại không khớp. Hãy kiểm tra cột price trong sheet Products.');
+     if(JSON.stringify(saved.materials||[])!==JSON.stringify(p.materials)||JSON.stringify(saved.colors||[])!==JSON.stringify(p.colors)||JSON.stringify(saved.customOptions||[])!==JSON.stringify(p.customOptions))throw new Error('Lựa chọn sợi/tùy chọn đọc lại không khớp dữ liệu vừa lưu.');
+     return saved;
+    });
+   }).then(function(){toast('Đã lưu và kiểm tra lại giá + lựa chọn sợi');editing=null;return go('prods',true)}).catch(function(x){btn.disabled=false;toast(msg(x))});
+  }catch(x){btn.disabled=false;toast(msg(x))}
+ }
  if(id==='cf'){var v={};['depositPercent','bankName','bankAccount','bankHolder','payNote','quoteNote','allowPreorder','storeNotice'].forEach(function(k){v[k]=$('#f-'+k).value});
   call('adminSetConfig',v).then(function(){toast('Đã lưu cài đặt');return go('cfg',true)}).catch(function(x){btn.disabled=false;toast(msg(x))})}});
 </script>
